@@ -2,10 +2,9 @@ name: localshare
 description: "Fast, private file sharing over your local WiFi network. No internet, no accounts, no cloud."
 publish_to: 'none'
 version: 1.0.0+1
-# TODO: set these to your actual repository once hosted
-homepage: https://github.com/localshare-app/localshare
-repository: https://github.com/localshare-app/localshare
-issue_tracker: https://github.com/localshare-app/localshare/issues
+homepage: https://github.com/israelIsiaka/LocalShare
+repository: https://github.com/israelIsiaka/LocalShare
+issue_tracker: https://github.com/israelIsiaka/LocalShare/issues
 
 environment:
   sdk: ^3.10.4

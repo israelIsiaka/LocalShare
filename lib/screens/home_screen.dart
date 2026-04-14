@@ -303,7 +303,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Share.share(
                     'Check out LocalShare — fast, private file sharing over your local WiFi. '
                     'No internet, no accounts, no cloud.\n'
-                    'https://github.com/localshare-app/localshare',
+                    'https://github.com/israelIsiaka/LocalShare',
                     subject: 'LocalShare – Local File Sharing',
                   );
                 case _AppMenuItem.about:

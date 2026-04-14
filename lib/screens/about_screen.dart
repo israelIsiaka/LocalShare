@@ -41,7 +41,7 @@ class _AboutScreenState extends State<AboutScreen> {
     Share.share(
       'Check out LocalShare — fast, private file sharing over your local WiFi network. '
       'No internet required, no accounts, no cloud. '
-      'Get it at: https://github.com/localshare-app/localshare',
+      'Get it at: https://github.com/israelIsiaka/LocalShare',
       subject: 'LocalShare – Local File Sharing App',
     );
   }
@@ -238,7 +238,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         icon: Icons.code_rounded,
                         label: 'Source Code',
                         onTap: () => _launchUrl(
-                            'https://github.com/localshare-app/localshare'),
+                            'https://github.com/israelIsiaka/LocalShare'),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -247,7 +247,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         icon: Icons.bug_report_rounded,
                         label: 'Report Issue',
                         onTap: () => _launchUrl(
-                            'https://github.com/localshare-app/localshare/issues'),
+                            'https://github.com/israelIsiaka/LocalShare/issues'),
                       ),
                     ),
                   ],
@@ -305,7 +305,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   trailing: const Icon(Icons.chevron_right_rounded,
                       color: Colors.grey),
                   onTap: () => _launchUrl(
-                      'https://github.com/localshare-app/localshare#privacy'),
+                      'https://github.com/israelIsiaka/LocalShare#privacy'),
                 ),
               ],
             ),
