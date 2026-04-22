@@ -9,9 +9,12 @@ import 'services/discovery_service.dart';
 import 'services/server_service.dart';
 import 'services/transfer_service.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
+  // Fire-and-forget — the platform processes this before the user can rotate.
+  // Not awaiting removes the blocking platform-channel round-trip that was
+  // delaying the first Flutter frame.
+  SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);

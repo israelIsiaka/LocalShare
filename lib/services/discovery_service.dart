@@ -31,8 +31,8 @@ class DiscoveryService extends ChangeNotifier {
     if (_isRunning) return;
     _isRunning = true;
 
-    await _initDeviceInfo();
-    await _initLocalIp();
+    // Run both in parallel — they are independent platform-channel calls.
+    await Future.wait([_initDeviceInfo(), _initLocalIp()]);
 
     try {
       // On macOS, binding to anyIPv4 with broadcast enabled works better
