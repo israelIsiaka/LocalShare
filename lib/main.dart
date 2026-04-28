@@ -230,9 +230,10 @@ class _AppInitState extends State<_AppInit> {
       if (Platform.isAndroid || Platform.isIOS) {
         await OpenFilex.open(filePath);
       } else if (Platform.isMacOS) {
-        await Process.run('open', [filePath]);
+        await Process.run('open', ['-R', filePath]);
       } else if (Platform.isWindows) {
-        await Process.run('explorer', ['/select,', filePath]);
+        final winPath = filePath.replaceAll('/', '\\');
+        await Process.run('explorer', ['/select,$winPath'], runInShell: true);
       } else if (Platform.isLinux) {
         await Process.run('xdg-open', [File(filePath).parent.path]);
       }

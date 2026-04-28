@@ -55,13 +55,13 @@ class TransferTile extends StatelessWidget {
   // ─── Desktop: reveal the file's containing folder ───────────────────────
 
   Future<void> _openFolderDesktop(String filePath) async {
-    final dir = File(filePath).parent.path;
     if (Platform.isMacOS) {
-      await Process.run('open', [dir]);
+      await Process.run('open', ['-R', filePath]);
     } else if (Platform.isWindows) {
-      await Process.run('explorer', [dir]);
+      final winPath = filePath.replaceAll('/', '\\');
+      await Process.run('explorer', ['/select,$winPath'], runInShell: true);
     } else if (Platform.isLinux) {
-      await Process.run('xdg-open', [dir]);
+      await Process.run('xdg-open', [File(filePath).parent.path]);
     }
   }
 
