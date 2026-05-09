@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/transfer.dart';
 
@@ -52,10 +52,17 @@ class TransferTile extends StatelessWidget {
     }
   }
 
-  // ─── Desktop: reveal the file's containing folder ───────────────────────
+  // Opens the folder containing the received file on every platform.
+  static const _channel = MethodChannel('com.localshare/downloads');
 
-  Future<void> _openFolderDesktop(String filePath) async {
-    if (Platform.isMacOS) {
+  Future<void> _openFolder(String filePath) async {
+    if (Platform.isAndroid) {
+      try {
+        await _channel.invokeMethod('openFolder');
+      } catch (_) {}
+    } else if (Platform.isIOS) {
+      await launchUrl(Uri.parse('shareddocuments://'));
+    } else if (Platform.isMacOS) {
       await Process.run('open', ['-R', filePath]);
     } else if (Platform.isWindows) {
       final winPath = filePath.replaceAll('/', '\\');
@@ -63,102 +70,6 @@ class TransferTile extends StatelessWidget {
     } else if (Platform.isLinux) {
       await Process.run('xdg-open', [File(filePath).parent.path]);
     }
-  }
-
-  // ─── Mobile: bottom sheet with location info + actions ──────────────────
-
-  void _showMobileSheet(BuildContext context, String filePath) {
-    final fileName = File(filePath).uri.pathSegments.last;
-    final folderLabel = Platform.isAndroid
-        ? 'Downloads → LocalShare'
-        : 'Files app → LocalShare → LocalShare';
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (sheetCtx) => Padding(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Handle bar
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            Text(
-              fileName,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold, fontSize: 15),
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(Icons.folder_rounded, size: 14, color: Colors.grey[400]),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    folderLabel,
-                    style:
-                        TextStyle(color: Colors.grey[500], fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Open File — lets the OS pick the right app for this file type
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                label: const Text('Open File'),
-                onPressed: () async {
-                  Navigator.pop(sheetCtx);
-                  final result = await OpenFilex.open(filePath);
-                  if (result.type != ResultType.done && context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('No app installed to open this file type'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                },
-              ),
-            ),
-
-            if (Platform.isIOS) ...[
-              const SizedBox(height: 10),
-              // Open Files app — user can then browse to LocalShare folder
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.folder_open_rounded, size: 18),
-                  label: const Text('Browse in Files App'),
-                  onPressed: () async {
-                    Navigator.pop(sheetCtx);
-                    await launchUrl(Uri.parse('shareddocuments://'));
-                  },
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -211,14 +122,7 @@ class TransferTile extends StatelessWidget {
                 size: 20,
               ),
               tooltip: 'Show in folder',
-              onPressed: () {
-                final path = transfer.savedPath!;
-                if (Platform.isAndroid || Platform.isIOS) {
-                  _showMobileSheet(context, path);
-                } else {
-                  _openFolderDesktop(path);
-                }
-              },
+              onPressed: () => _openFolder(transfer.savedPath!),
             )
           : null,
     );

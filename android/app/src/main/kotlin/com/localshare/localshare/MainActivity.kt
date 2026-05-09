@@ -1,6 +1,9 @@
 package com.localshare.localshare
 
+import android.app.DownloadManager
 import android.content.ContentValues
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
@@ -32,6 +35,29 @@ class MainActivity : FlutterActivity() {
                             result.success(destPath)
                         } catch (e: Exception) {
                             result.error("PUBLISH_FAILED", e.message, null)
+                        }
+                    }
+                    "openFolder" -> {
+                        try {
+                            // Try to open Downloads/LocalShare in the system Files app
+                            val intent = Intent(Intent.ACTION_VIEW)
+                            intent.setDataAndType(
+                                Uri.parse("content://com.android.externalstorage.documents/document/primary%3ADownload%2FLocalShare"),
+                                "vnd.android.document/directory"
+                            )
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            startActivity(intent)
+                            result.success(null)
+                        } catch (e: Exception) {
+                            // Fallback: open the Downloads section
+                            try {
+                                val fallback = Intent(DownloadManager.ACTION_VIEW_DOWNLOADS)
+                                fallback.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                startActivity(fallback)
+                                result.success(null)
+                            } catch (e2: Exception) {
+                                result.error("OPEN_FAILED", e2.message, null)
+                            }
                         }
                     }
                     else -> result.notImplemented()

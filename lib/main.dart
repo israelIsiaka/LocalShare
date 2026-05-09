@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'models/transfer.dart';
 import 'screens/home_screen.dart';
 import 'services/discovery_service.dart';
@@ -197,7 +197,9 @@ class _AppInitState extends State<_AppInit> {
 
   void _showIncomingBanner(Transfer transfer) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.clearSnackBars();
+    messenger.showSnackBar(
       SnackBar(
         content: Row(
           children: [
@@ -216,19 +218,23 @@ class _AppInitState extends State<_AppInit> {
         duration: const Duration(seconds: 5),
         action: transfer.savedPath != null
             ? SnackBarAction(
-                label: 'Open',
+                label: 'Show',
                 textColor: Colors.white,
-                onPressed: () => _openSavedFile(transfer.savedPath!),
+                onPressed: () => _openFolder(transfer.savedPath!),
               )
             : null,
       ),
     );
   }
 
-  Future<void> _openSavedFile(String filePath) async {
+  static const _downloadsChannel = MethodChannel('com.localshare/downloads');
+
+  Future<void> _openFolder(String filePath) async {
     try {
-      if (Platform.isAndroid || Platform.isIOS) {
-        await OpenFilex.open(filePath);
+      if (Platform.isAndroid) {
+        await _downloadsChannel.invokeMethod('openFolder');
+      } else if (Platform.isIOS) {
+        await launchUrl(Uri.parse('shareddocuments://'));
       } else if (Platform.isMacOS) {
         await Process.run('open', ['-R', filePath]);
       } else if (Platform.isWindows) {
@@ -237,10 +243,7 @@ class _AppInitState extends State<_AppInit> {
       } else if (Platform.isLinux) {
         await Process.run('xdg-open', [File(filePath).parent.path]);
       }
-    } catch (_) {
-      // Best-effort — if it fails the user can still find the file in the
-      // transfer list and tap the folder button there.
-    }
+    } catch (_) {}
   }
 
   @override
